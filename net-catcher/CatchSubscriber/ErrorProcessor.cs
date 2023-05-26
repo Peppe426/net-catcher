@@ -2,13 +2,14 @@
 using CatchSubscriber.Interfaces;
 using CatchSubscriber.Models;
 using Microsoft.Extensions.Logging;
-using Slack.Webhooks;
 using System.Diagnostics.Tracing;
 
 namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
+    private SlackProcessor SlackProcessor { get; set; }
+
     public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null)
     {
         await Task.Run(async () =>
@@ -37,7 +38,7 @@ public class ErrorProcessor : IErrorProcesser
                         break;
 
                     case CatchAction.Slack:
-                        LogDiagnosticsToSlack(logLevel, message);
+                        await LogMessageToSlack(logLevel, message);
                         break;
 
                     default:
@@ -47,61 +48,70 @@ public class ErrorProcessor : IErrorProcesser
         });
     }
 
+    public void RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
+    {
+        SlackProcessor = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
+    }
+
     private async Task LogDiagnosticsToAzure(LogLevel logLevel, string message)
     {
         await Task.Run(() =>
         {
-            EventLevel eventLevel = EventLevel.Verbose;
+            //EventLevel eventLevel = EventLevel.Verbose;
 
-            switch (logLevel)
-            {
-                case LogLevel.Error:
-                    eventLevel = EventLevel.Error;
-                    break;
+            //switch (logLevel)
+            //{
+            //    case LogLevel.Error:
+            //        eventLevel = EventLevel.Error;
+            //        break;
 
-                case LogLevel.Critical:
-                    eventLevel = EventLevel.Critical;
-                    break;
+            //    case LogLevel.Critical:
+            //        eventLevel = EventLevel.Critical;
+            //        break;
 
-                case LogLevel.Warning:
-                    eventLevel = EventLevel.Warning;
-                    break;
+            //    case LogLevel.Warning:
+            //        eventLevel = EventLevel.Warning;
+            //        break;
 
-                default:
-                    eventLevel = EventLevel.Verbose;
-                    break;
-            }
-            try
-            {
-                using var listener = new AzureEventSourceListener((e, log) =>
-                {
-                    if (e.EventSource.Name == "Core")//TODO change this
-                    {
-                        Console.WriteLine($"{DateTime.UtcNow} {log}");
-                    }
-                }, level: eventLevel);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            //    default:
+            //        eventLevel = EventLevel.Verbose;
+            //        break;
+            //}
+
+            Console.WriteLine($"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}");
+
+            //TODO This should be done in the register method/class MOVE THIS
+            //try
+            //{
+            //    using var listener = new AzureEventSourceListener((e, log) =>
+            //    {
+            //        if (e.EventSource.Name == "Core")//TODO change this
+            //        {
+            //            Console.WriteLine($"{DateTime.UtcNow} {log}");
+            //        }
+            //    }, level: eventLevel);
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
         });
     }
 
-    private async Task LogDiagnosticsToSlack(LogLevel logLevel, string message)
+    private async Task LogMessageToSlack(LogLevel logLevel, string message, string channel = "")
     {
-        string hookUrl = "https://hooks.slack.com/services/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";
-        SlackClient slackClient = new(hookUrl);
-
-        var slackMessage = new SlackMessage
+        if (SlackProcessor is null)
         {
-            Channel = "#testing",
-            Text = message,
-            IconEmoji = Emoji.AlarmClock,
-            Username = "Tester"
-        };
+            throw new ArgumentNullException(nameof(SlackProcessor));
+        }
 
-        slackClient.Post(slackMessage);
+        if (string.IsNullOrEmpty(channel) is false)
+        {
+            SlackProcessor.SetChannel(channel);
+        }
+
+        SlackProcessor.SetMessage(logLevel, message);
+        await SlackProcessor.SlackClient.PostAsync(SlackProcessor.SlackMessage);
     }
 
     private void SetColors(LogLevel LogLevel)

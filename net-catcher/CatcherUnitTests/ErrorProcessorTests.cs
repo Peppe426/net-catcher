@@ -52,6 +52,8 @@ public class ErrorProcessorTests
     public async Task ShouldProcessMessageUsingSlackWebbHook()
     {
         ErrorProcessor ProcessError = new();
+        ProcessError.RegisterSlack("https://hooks.slack.com/services/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", "Testing", "ThisApplication");
+
         var expectedActions = new List<CatchAction>()
         {
             CatchAction.Slack
