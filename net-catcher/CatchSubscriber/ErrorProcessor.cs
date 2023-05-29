@@ -13,6 +13,15 @@ public class ErrorProcessor : IErrorProcesser
         RegisterProcessors = new();
     }
 
+    /// <summary>
+    /// Register slack using provided webhook
+    /// <see href="https://slack.com/services/new/incoming-webhook">Incoming WebHook</see>
+    /// </summary>
+    /// <param name="hookUrl"><see href="https://slack.com/services/new/incoming-webhook">Incoming WebHook</see></param>
+    /// <param name="channel">Slack channel</param>
+    /// <param name="userName">Name of the sender in slack</param>
+    /// <param name="emoji">nullable, if not provided the Slack.Webhooks.Emoji.AlarmClock will be used</param>
+    /// <returns><see cref="ErrorProcessor">ErrorProcessor</see></returns>
     public ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
         RegisterProcessors = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
