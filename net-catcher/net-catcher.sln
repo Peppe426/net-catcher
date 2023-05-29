@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatchSubscriber", "CatchSub
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F5E4C918-675A-4908-BD61-A59E5332AA02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Azure", "Example.Azure\Example.Azure.csproj", "{B44C9DDD-E533-430A-BB26-1368C7929FB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.Api", "Example.Azure\Example.Api.csproj", "{B44C9DDD-E533-430A-BB26-1368C7929FB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

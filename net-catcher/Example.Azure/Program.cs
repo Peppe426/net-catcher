@@ -1,4 +1,5 @@
 using CatchSubscriber;
+using CatchSubscriber.Extentions;
 using CatchSubscriber.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,9 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//------------ EXAMPLE ADD AWS ------------
+builder.Services.AddOpenTelemetryForAWS("ThisApplication", "1.0");
+
+//------------ EXAMPLE ADD Azure ------------
+builder.Services.AddOpenTelemetryForAzure("ThisApplication", "1.0", "Azure connecitonstring");
+
+//------------ EXAMPLE ADD SLACK ------------
+//You must first enable the Webhooks integration for your Slack Account to get the Token. You can enable it here: https://slack.com/services/new/incoming-webhook
 builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>(
     serviceProvider => new ErrorProcessor()
-    .RegisterSlack("https://hooks.slack.com/services/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", "Testing", userName: "ThisApplication")
+    .RegisterSlack("https://hooks.slack.com/services/[YOUR-TOKEN]", "Testing", userName: "ThisApplication")
  );
 
 var app = builder.Build();
