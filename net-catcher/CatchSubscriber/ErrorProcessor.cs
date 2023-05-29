@@ -6,7 +6,7 @@ namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
-    private ProcessorHandler RegisterProcessors { get; set; } = new ProcessorHandler();
+    private ProcessorHandler RegistratedProcessors { get; set; } = new ProcessorHandler();
 
     /// <summary>
     /// Register slack using provided webhook
@@ -19,17 +19,22 @@ public class ErrorProcessor : IErrorProcesser
     /// <returns><see cref="ErrorProcessor">ErrorProcessor</see></returns>
     public ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
-        RegisterProcessors = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
+        RegistratedProcessors = RegistratedProcessors.InjectSlack(hookUrl, channel, userName, emoji);
         return this;
     }
 
-    public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null)
+    /// <summary>
+    /// Process error using provided actions <see cref="CatchAction"/>
+    /// </summary>
+    /// <param name="actions"><see cref="CatchAction"/> If no action is provided only console log will be used</param>
+    /// <param name="level">level on when to take action, default is <see cref="LogLevel.Critical"/></param>
+    /// <returns></returns>
+    public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null, LogLevel level = LogLevel.Critical)
     {
         await Task.Run(async () =>
         {
             if (actions is null)
             {
-                SetColors(logLevel);
                 Console.WriteLine(message);
                 return;
             }
@@ -39,19 +44,23 @@ public class ErrorProcessor : IErrorProcesser
                 switch (action)
                 {
                     case CatchAction.Console:
-                        SetColors(logLevel);
-                        Console.WriteLine(message);
+                        await LogMessageToConsole(logLevel, message, level);
                         break;
 
                     case CatchAction.Azure:
-                        await LogDiagnosticsToAzure(logLevel, message);
+                        await LogDiagnosticsToAzure(logLevel, message, level);
                         break;
 
                     case CatchAction.AWS:
+                        await LogMessageToAws(logLevel, message, level);
                         break;
 
                     case CatchAction.Slack:
                         await LogMessageToSlack(logLevel, message);
+                        break;
+
+                    case CatchAction.Email:
+                        await LogMessageToEmail(logLevel, message, level);
                         break;
 
                     default:
@@ -61,65 +70,65 @@ public class ErrorProcessor : IErrorProcesser
         });
     }
 
-    private async Task LogDiagnosticsToAzure(LogLevel logLevel, string message)
+    private async Task LogMessageToConsole(LogLevel logLevel, string message, LogLevel level)
     {
-        await Task.Run(() =>
+        if (logLevel == level)
         {
-            //EventLevel eventLevel = EventLevel.Verbose;
+            SetColors(logLevel);
+            await LogMessage(logLevel, message);
+        }
+    }
 
-            //switch (logLevel)
-            //{
-            //    case LogLevel.Error:
-            //        eventLevel = EventLevel.Error;
-            //        break;
+    private async Task LogDiagnosticsToAzure(LogLevel logLevel, string message, LogLevel level)
+    {
+        if (logLevel == level)
+        {
+            await LogMessage(logLevel, message);
+        }
+    }
 
-            //    case LogLevel.Critical:
-            //        eventLevel = EventLevel.Critical;
-            //        break;
-
-            //    case LogLevel.Warning:
-            //        eventLevel = EventLevel.Warning;
-            //        break;
-
-            //    default:
-            //        eventLevel = EventLevel.Verbose;
-            //        break;
-            //}
-
-            Console.WriteLine($"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}");
-
-            //TODO This should be done in the register method/class MOVE THIS
-            //try
-            //{
-            //    using var listener = new AzureEventSourceListener((e, log) =>
-            //    {
-            //        if (e.EventSource.Name == "Core")//TODO change this
-            //        {
-            //            Console.WriteLine($"{DateTime.UtcNow} {log}");
-            //        }
-            //    }, level: eventLevel);
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-        });
+    private async Task LogMessageToAws(LogLevel logLevel, string message, LogLevel level)
+    {
+        if (logLevel == level)
+        {
+            await LogMessage(logLevel, message);
+        }
     }
 
     private async Task LogMessageToSlack(LogLevel logLevel, string message, string channel = "")
     {
-        if (RegisterProcessors.Slack is null)
+        if (RegistratedProcessors.Slack is null)
         {
             throw new ArgumentNullException(nameof(Processors.SlackProcessor));
         }
 
         if (string.IsNullOrEmpty(channel) is false)
         {
-            RegisterProcessors.Slack.SetChannel(channel);
+            RegistratedProcessors.Slack.SetChannel(channel);
         }
 
-        RegisterProcessors.Slack.SetMessage(logLevel, message);
-        await RegisterProcessors.Slack.SlackClient.PostAsync(RegisterProcessors.Slack.SlackMessage);
+        RegistratedProcessors.Slack.SetMessage(logLevel, message);
+        await RegistratedProcessors.Slack.SlackClient.PostAsync(RegistratedProcessors.Slack.SlackMessage);
+    }
+
+    /// <summary>
+    /// Sends an email when level of the loglevel is meet
+    /// </summary>
+    /// <param name="level">set level on when to log using email</param>
+    private async Task LogMessageToEmail(LogLevel logLevel, string message, LogLevel level)
+    {
+        if (logLevel == level)
+        {
+            //TODO add logic using FluentEmail
+        }
+    }
+
+    private async Task LogMessage(LogLevel logLevel, string message)
+    {
+        await Task.Run(() =>
+        {
+            Console.WriteLine($"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}");
+        });
     }
 
     private void SetColors(LogLevel LogLevel)

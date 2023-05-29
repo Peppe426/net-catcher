@@ -13,9 +13,9 @@ public class RegisterProcessorsTests
         ErrorProcessor ProcessError = new();
 
         //When
-        Action action = () => ProcessError.RegisterSlack("myWebhookUrl", "mychannel", "ApplicationName", Emoji.AlarmClock.ToString());
+        Action outcome = () => ProcessError.RegisterSlack("myWebhookUrl", "mychannel", "ApplicationName", Emoji.AlarmClock.ToString());
 
         //Then
-        action.Should().Throw<ArgumentException>();
+        outcome.Should().Throw<ArgumentException>();
     }
 }
