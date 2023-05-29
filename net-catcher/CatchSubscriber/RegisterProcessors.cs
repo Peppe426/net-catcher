@@ -17,7 +17,6 @@ public static class RegisterProcessors
 
     public static SlackProcessor InjectSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
-        var hej = string.IsNullOrEmpty(emoji) is true ? Emoji.AlarmClock : emoji;
         SlackClient slackClient = new(hookUrl);
 
         var slackMessage = new SlackMessage
