@@ -5,7 +5,7 @@ namespace CatchSubscriber;
 
 public static class RegisterProcessors
 {
-    private static SlackProcessor SlackProcessor = null;
+    private static SlackProcessor? SlackProcessor = null;
 
     public static void InjectAWSXRay()
     {

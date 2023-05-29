@@ -21,6 +21,7 @@ public class SlackProcessor
         SlackMessage.Text = message;
         return this;
     }
+
     public SlackProcessor SetChannel(string channel)
     {
         SlackMessage.Channel = channel;

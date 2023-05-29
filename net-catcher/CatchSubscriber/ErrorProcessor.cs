@@ -1,14 +1,12 @@
-﻿using Azure.Core.Diagnostics;
-using CatchSubscriber.Interfaces;
+﻿using CatchSubscriber.Interfaces;
 using CatchSubscriber.Models;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.Tracing;
 
 namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
-    private SlackProcessor SlackProcessor { get; set; }
+    private SlackProcessor? SlackProcessor { get; set; }
 
     public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null)
     {

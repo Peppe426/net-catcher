@@ -7,7 +7,7 @@ namespace CatcherUnitTests;
 public class RegisterProcessorsTests
 {
     [Test]
-    public async Task ShouldThrowArgumentExceptionWhenRegisterSlack()
+    public void ShouldThrowArgumentExceptionWhenRegisterSlack()
     {
         //Given
         ErrorProcessor ProcessError = new();
