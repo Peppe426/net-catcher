@@ -1,9 +1,17 @@
+using CatchSubscriber;
+using CatchSubscriber.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>(
+    serviceProvider => new ErrorProcessor()
+    .RegisterSlack("https://hooks.slack.com/services/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", "Testing", userName: "ThisApplication")
+ );
 
 var app = builder.Build();
 

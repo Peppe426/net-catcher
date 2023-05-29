@@ -6,7 +6,20 @@ namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
-    private SlackProcessor? SlackProcessor { get; set; }
+    private ProcessorHandler RegisterProcessors { get; set; }
+
+    public ErrorProcessor()
+    {
+        RegisterProcessors = new();
+    }
+
+    //private SlackProcessor? SlackProcessor { get; set; }
+
+    public ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
+    {
+        RegisterProcessors = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
+        return this;
+    }
 
     public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null)
     {
@@ -44,11 +57,6 @@ public class ErrorProcessor : IErrorProcesser
                 }
             }
         });
-    }
-
-    public void RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
-    {
-        SlackProcessor = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
     }
 
     private async Task LogDiagnosticsToAzure(LogLevel logLevel, string message)
@@ -98,18 +106,18 @@ public class ErrorProcessor : IErrorProcesser
 
     private async Task LogMessageToSlack(LogLevel logLevel, string message, string channel = "")
     {
-        if (SlackProcessor is null)
+        if (RegisterProcessors.Slack is null)
         {
-            throw new ArgumentNullException(nameof(SlackProcessor));
+            throw new ArgumentNullException(nameof(Processors.SlackProcessor));
         }
 
         if (string.IsNullOrEmpty(channel) is false)
         {
-            SlackProcessor.SetChannel(channel);
+            RegisterProcessors.Slack.SetChannel(channel);
         }
 
-        SlackProcessor.SetMessage(logLevel, message);
-        await SlackProcessor.SlackClient.PostAsync(SlackProcessor.SlackMessage);
+        RegisterProcessors.Slack.SetMessage(logLevel, message);
+        await RegisterProcessors.Slack.SlackClient.PostAsync(RegisterProcessors.Slack.SlackMessage);
     }
 
     private void SetColors(LogLevel LogLevel)
