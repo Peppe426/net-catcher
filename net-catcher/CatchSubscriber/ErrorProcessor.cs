@@ -13,8 +13,6 @@ public class ErrorProcessor : IErrorProcesser
         RegisterProcessors = new();
     }
 
-    //private SlackProcessor? SlackProcessor { get; set; }
-
     public ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
         RegisterProcessors = RegisterProcessors.InjectSlack(hookUrl, channel, userName, emoji);
