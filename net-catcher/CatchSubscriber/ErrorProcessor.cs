@@ -6,12 +6,7 @@ namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
-    private ProcessorHandler RegisterProcessors { get; set; }
-
-    public ErrorProcessor()
-    {
-        RegisterProcessors = new();
-    }
+    private ProcessorHandler RegisterProcessors { get; set; } = new ProcessorHandler();
 
     /// <summary>
     /// Register slack using provided webhook
