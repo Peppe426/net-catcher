@@ -25,13 +25,8 @@ public class ErrorProcessorTests
     public async Task ShouldProcessMessageUsingMultiplyActions()
     {
         ErrorProcessor ProcessError = new();
-        var expectedActions = new List<CatchAction>()
-        {
-            CatchAction.Azure,
-            CatchAction.Console
-        };
 
-        await ProcessError.ProcessError("This is my log message", LogLevel.Critical, expectedActions);
+        await ProcessError.ProcessError("This is my log message", LogLevel.Critical, CatchAction.Azure, CatchAction.Console);
     }
 
     [Test]
@@ -40,13 +35,9 @@ public class ErrorProcessorTests
         //Given
         ErrorProcessor ProcessError = new();
         LogLevel expectedLogLevel = LogLevel.Critical;
-        var expectedActions = new List<CatchAction>()
-        {
-            CatchAction.Azure
-        };
 
         //When
-        Func<Task> outcome = async () => await ProcessError.ProcessError("This is my message for azure diagnostics", expectedLogLevel, expectedActions);
+        Func<Task> outcome = async () => await ProcessError.ProcessError("This is my message for azure diagnostics", expectedLogLevel, CatchAction.Azure);
         Action act = () => outcome();
 
         //Then
@@ -59,13 +50,9 @@ public class ErrorProcessorTests
         //Given
         ErrorProcessor ProcessError = new();
         LogLevel expectedLogLevel = LogLevel.Critical;
-        var expectedActions = new List<CatchAction>()
-        {
-            CatchAction.AWS
-        };
 
         //When
-        Func<Task> outcome = async () => await ProcessError.ProcessError("This is my message for AWSXRay", expectedLogLevel, expectedActions);
+        Func<Task> outcome = async () => await ProcessError.ProcessError("This is my message for AWSXRay", expectedLogLevel, CatchAction.AWS);
         Action act = () => outcome();
 
         //Then
@@ -79,10 +66,7 @@ public class ErrorProcessorTests
         ErrorProcessor ProcessError = new();
         ProcessError.RegisterSlack("https://hooks.slack.com/services/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", "Testing", "ThisApplication");
 
-        var expectedActions = new List<CatchAction>()
-        {
-            CatchAction.Slack
-        };
+        var expectedActions = CatchAction.Slack;
 
         //When
         Func<Task> outcome = async () => await ProcessError.ProcessError("This is a test message", LogLevel.Critical, expectedActions);
@@ -98,10 +82,7 @@ public class ErrorProcessorTests
         //Given
         ErrorProcessor ProcessError = new();
         LogLevel expectedLogLevel = LogLevel.Critical;
-        var expectedActions = new List<CatchAction>()
-        {
-            CatchAction.Email
-        };
+        var expectedActions = CatchAction.Email;
 
         //When
         await ProcessError.ProcessError("This is my message for an Email", expectedLogLevel, expectedActions);

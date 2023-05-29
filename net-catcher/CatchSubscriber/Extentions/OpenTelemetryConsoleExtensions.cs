@@ -1,11 +1,12 @@
-﻿using Azure.Monitor.OpenTelemetry.Exporter;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
+namespace CatchSubscriber.Extentions;
+
 public static partial class OpenTelemetryExtensions
 {
-    public static void AddOpenTelemetryForAzure(this IServiceCollection services, string serviceName, string serviceVersion, string azureMonitorConnectionString)
+    public static void AddOpenTelemetryForConsole(this IServiceCollection services, string serviceName, string serviceVersion)
     {
         services.AddOpenTelemetry()
            .WithTracing(builder =>
@@ -14,10 +15,7 @@ public static partial class OpenTelemetryExtensions
                .AddSource(serviceName)
                .AddAspNetCoreInstrumentation()
                .AddHttpClientInstrumentation()
-               .AddAzureMonitorTraceExporter(options =>
-                {
-                    options.ConnectionString = azureMonitorConnectionString;
-                })
+               .AddConsoleExporter()
                .ConfigureResource(resource => resource.AddService(serviceName: serviceName, serviceVersion: serviceVersion));
            });
     }
