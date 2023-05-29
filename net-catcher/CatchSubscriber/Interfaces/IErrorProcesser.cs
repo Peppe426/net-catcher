@@ -5,7 +5,7 @@ namespace CatchSubscriber.Interfaces;
 
 public interface IErrorProcesser
 {
-    Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null, LogLevel level = LogLevel.Critical);
+    Task ProcessError(string message, LogLevel logLevel, params CatchAction[] actions);
 
     ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "");
 }

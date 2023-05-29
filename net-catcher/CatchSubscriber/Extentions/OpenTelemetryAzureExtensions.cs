@@ -12,7 +12,6 @@ public static partial class OpenTelemetryExtensions
            {
                builder
                .AddSource(serviceName)
-               .AddConsoleExporter()
                .AddAspNetCoreInstrumentation()
                .AddHttpClientInstrumentation()
                .AddAzureMonitorTraceExporter(options =>

@@ -27,9 +27,8 @@ public class ErrorProcessor : IErrorProcesser
     /// Process error using provided actions <see cref="CatchAction"/>
     /// </summary>
     /// <param name="actions"><see cref="CatchAction"/> If no action is provided only console log will be used</param>
-    /// <param name="level">level on when to take action, default is <see cref="LogLevel.Critical"/></param>
     /// <returns></returns>
-    public async Task ProcessError(string message, LogLevel logLevel, List<CatchAction>? actions = null, LogLevel level = LogLevel.Critical)
+    public async Task ProcessError(string message, LogLevel logLevel, params CatchAction[] actions)
     {
         await Task.Run(async () =>
         {
@@ -39,20 +38,20 @@ public class ErrorProcessor : IErrorProcesser
                 return;
             }
 
+            bool consoleExecuted = false;
+
             foreach (var action in actions)
             {
                 switch (action)
                 {
                     case CatchAction.Console:
-                        await LogMessageToConsole(logLevel, message, level);
-                        break;
-
                     case CatchAction.Azure:
-                        await LogDiagnosticsToAzure(logLevel, message, level);
-                        break;
-
                     case CatchAction.AWS:
-                        await LogMessageToAws(logLevel, message, level);
+                        if (consoleExecuted is false)
+                        {
+                            await LogMessageToConsole(logLevel, message);
+                            consoleExecuted = true;
+                        }
                         break;
 
                     case CatchAction.Slack:
@@ -60,7 +59,7 @@ public class ErrorProcessor : IErrorProcesser
                         break;
 
                     case CatchAction.Email:
-                        await LogMessageToEmail(logLevel, message, level);
+                        await LogMessageToEmail(logLevel, message);
                         break;
 
                     default:
@@ -70,29 +69,10 @@ public class ErrorProcessor : IErrorProcesser
         });
     }
 
-    private async Task LogMessageToConsole(LogLevel logLevel, string message, LogLevel level)
+    private async Task LogMessageToConsole(LogLevel logLevel, string message)
     {
-        if (logLevel == level)
-        {
-            SetColors(logLevel);
-            await LogMessage(logLevel, message);
-        }
-    }
-
-    private async Task LogDiagnosticsToAzure(LogLevel logLevel, string message, LogLevel level)
-    {
-        if (logLevel == level)
-        {
-            await LogMessage(logLevel, message);
-        }
-    }
-
-    private async Task LogMessageToAws(LogLevel logLevel, string message, LogLevel level)
-    {
-        if (logLevel == level)
-        {
-            await LogMessage(logLevel, message);
-        }
+        SetColors(logLevel);
+        await LogMessage(logLevel, message);
     }
 
     private async Task LogMessageToSlack(LogLevel logLevel, string message, string channel = "")
@@ -112,15 +92,13 @@ public class ErrorProcessor : IErrorProcesser
     }
 
     /// <summary>
-    /// Sends an email when level of the loglevel is meet
+    /// Sends an email when level of the loglevel is met
     /// </summary>
     /// <param name="level">set level on when to log using email</param>
-    private async Task LogMessageToEmail(LogLevel logLevel, string message, LogLevel level)
+    private async Task LogMessageToEmail(LogLevel logLevel, string message)
     {
-        if (logLevel == level)
-        {
-            //TODO add logic using FluentEmail
-        }
+        throw new NotImplementedException();
+        //TODO add logic using FluentEmail
     }
 
     private async Task LogMessage(LogLevel logLevel, string message)
@@ -150,15 +128,15 @@ public class ErrorProcessor : IErrorProcesser
                 break;
 
             case LogLevel.Warning:
-                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 break;
 
             case LogLevel.Error:
-                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.ForegroundColor = ConsoleColor.Red;
                 break;
 
             case LogLevel.Critical:
-                Console.ForegroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.DarkRed;
                 break;
 
             case LogLevel.None:
