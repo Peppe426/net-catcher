@@ -17,7 +17,6 @@ public class SlackProcessor
     public SlackProcessor SetMessage(LogLevel logLevel, string message)
     {
         //TODO add emoji/textdecorations for diffrent loglevels
-
         SlackMessage.Text = message;
         return this;
     }
