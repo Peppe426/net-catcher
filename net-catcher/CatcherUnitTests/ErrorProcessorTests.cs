@@ -30,7 +30,7 @@ public class ErrorProcessorTests
     }
 
     [Test]
-    public async Task ShouldProcessMessageUsingAzureDiagnostics()
+    public void ShouldProcessMessageUsingAzureDiagnostics()
     {
         //Given
         ErrorProcessor ProcessError = new();
@@ -45,7 +45,7 @@ public class ErrorProcessorTests
     }
 
     [Test]
-    public async Task ShouldProcessMessageUsingAWSXRay()
+    public void ShouldProcessMessageUsingAWSXRay()
     {
         //Given
         ErrorProcessor ProcessError = new();
@@ -60,7 +60,7 @@ public class ErrorProcessorTests
     }
 
     [Test]
-    public async Task ShouldProcessMessageUsingSlackWebbHook()
+    public void ShouldProcessMessageUsingSlackWebbHook()
     {
         //Given
         ErrorProcessor ProcessError = new();
@@ -77,18 +77,16 @@ public class ErrorProcessorTests
     }
 
     [Test]
-    public async Task ShouldProcessMessageUsingEmail()
+    public void ShouldRegisterEmail()
     {
         //Given
         ErrorProcessor ProcessError = new();
-        LogLevel expectedLogLevel = LogLevel.Critical;
-        var expectedActions = CatchAction.Email;
 
         //When
-        await ProcessError.ProcessError("This is my message for an Email", expectedLogLevel, expectedActions);
+        Func<ErrorProcessor> outcome = () => ProcessError.RegisterEmail();
+        Action act = () => outcome();
 
         //Then
-
-        Assert.Fail();
+        act.Should().NotThrow();
     }
 }

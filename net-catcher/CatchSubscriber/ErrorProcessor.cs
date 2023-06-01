@@ -23,6 +23,12 @@ public class ErrorProcessor : IErrorProcesser
         return this;
     }
 
+    public ErrorProcessor RegisterEmail(List<(string emailAddress, string? name)>? copys = null)
+    {
+        RegistratedProcessors = RegistratedProcessors.InjectEmail(copys);
+        return this;
+    }
+
     /// <summary>
     /// Process error using provided actions <see cref="CatchAction"/>
     /// </summary>
@@ -97,8 +103,14 @@ public class ErrorProcessor : IErrorProcesser
     /// <param name="level">set level on when to log using email</param>
     private async Task LogMessageToEmail(LogLevel logLevel, string message)
     {
-        throw new NotImplementedException();
-        //TODO add logic using FluentEmail
+        if (RegistratedProcessors.Email is null)
+        {
+            throw new ArgumentNullException(nameof(Processors.EmailProcessor));
+        }
+
+        string body = $"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}";
+
+        await RegistratedProcessors.Email.Email.Body(body).SendAsync();
     }
 
     private async Task LogMessage(LogLevel logLevel, string message)

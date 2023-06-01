@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.Api", "Example.Azure\Example.Api.csproj", "{B44C9DDD-E533-430A-BB26-1368C7929FB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.IntegrationTests", "Example.IntegrationTests\Example.IntegrationTests.csproj", "{5AA15121-E35A-4E9D-818C-340FECD3AA2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +31,17 @@ Global
 		{B44C9DDD-E533-430A-BB26-1368C7929FB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B44C9DDD-E533-430A-BB26-1368C7929FB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B44C9DDD-E533-430A-BB26-1368C7929FB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AA15121-E35A-4E9D-818C-340FECD3AA2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA15121-E35A-4E9D-818C-340FECD3AA2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AA15121-E35A-4E9D-818C-340FECD3AA2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AA15121-E35A-4E9D-818C-340FECD3AA2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B44C9DDD-E533-430A-BB26-1368C7929FB5} = {F5E4C918-675A-4908-BD61-A59E5332AA02}
+		{5AA15121-E35A-4E9D-818C-340FECD3AA2E} = {F5E4C918-675A-4908-BD61-A59E5332AA02}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B23FBFB1-FD77-4408-9DF8-0DA1262EB5BD}

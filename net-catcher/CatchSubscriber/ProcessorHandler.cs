@@ -6,6 +6,7 @@ namespace CatchSubscriber;
 public class ProcessorHandler
 {
     internal SlackProcessor? Slack = null;
+    internal EmailProcessor? Email = null;
 
     public ProcessorHandler InjectSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
@@ -20,6 +21,16 @@ public class ProcessorHandler
 
         Slack = new(slackClient, slackMessage);
 
+        return this;
+    }
+
+    internal ProcessorHandler InjectEmail(List<(string emailAddress, string? name)>? copys)
+    {
+        Email = new();
+        if (copys != null)
+        {
+            Email.AddCopys(copys);
+        }
         return this;
     }
 }

@@ -55,3 +55,6 @@ app.MapGet("/DoSomething", async (string message, IExampleProvider provider, IEr
 .WithOpenApi();
 
 app.Run();
+
+public partial class Program
+{ }
