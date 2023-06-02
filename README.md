@@ -34,3 +34,4 @@ builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>(
 );
 ```
 
+### Add Email integration

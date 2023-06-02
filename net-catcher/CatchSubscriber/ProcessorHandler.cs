@@ -8,6 +8,9 @@ public class ProcessorHandler
     internal SlackProcessor? Slack = null;
     internal EmailProcessor? Email = null;
 
+    public string ApplicaionName { get; private set; } = string.Empty;
+    public string Version { get; private set; } = string.Empty;
+
     public ProcessorHandler InjectSlack(string hookUrl, string channel, string userName, string emoji = "")
     {
         SlackClient slackClient = new(hookUrl);
@@ -24,13 +27,38 @@ public class ProcessorHandler
         return this;
     }
 
-    internal ProcessorHandler InjectEmail(List<(string emailAddress, string? name)>? copys)
+    //internal ProcessorHandler InjectEmail(string fromEmail, string toEmail, string fromName = "", string toName = "")
+    //{
+    //    fromEmail.IsEmail();
+    //    toEmail.IsEmail();
+    //    _fluentEmail.SetFrom(fromEmail, fromName);
+    //    _fluentEmail.To(toEmail, toName);
+    //    return this;
+    //}
+    internal ProcessorHandler InjectEmail(string toEmail, string toName = "", List<(string emailAddress, string? name)>? copies = null)
     {
         Email = new();
-        if (copys != null)
+        Email.AddCopy((toEmail, toName));
+        if (copies != null && copies.Any() is true)
         {
-            Email.AddCopys(copys);
+            copies.ForEach((email) =>
+            {
+                Email.AddCopy((email.emailAddress, email.name));
+            });
         }
+
+        return this;
+    }
+
+    internal ProcessorHandler SetApplicationName(string name)
+    {
+        ApplicaionName = name;
+        return this;
+    }
+
+    internal ProcessorHandler SetVersion(string version)
+    {
+        Version = version;
         return this;
     }
 }
