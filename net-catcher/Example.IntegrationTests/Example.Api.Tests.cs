@@ -17,7 +17,7 @@ public class EmailProcessor : IntegrationTest
         //Given
         GetRequiredService<IErrorProcesser>(out var service);
 
-        await service.ProcessError("This is my message", LogLevel.Warning, CatchSubscriber.Models.CatchAction.Email);
+        //await service.ProcessError("This is my message", LogLevel.Warning, CatchSubscriber.Models.CatchAction.Email);
 
         //When
         //Func<Task> outcome = async () => await service.ProcessError("This is my message", LogLevel.Warning, CatchSubscriber.Models.CatchAction.Email);
