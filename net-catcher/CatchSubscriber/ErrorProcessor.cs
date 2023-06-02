@@ -1,11 +1,23 @@
 ﻿using CatchSubscriber.Interfaces;
 using CatchSubscriber.Models;
+using FluentEmail.Core;
 using Microsoft.Extensions.Logging;
 
 namespace CatchSubscriber;
 
 public class ErrorProcessor : IErrorProcesser
 {
+    private IFluentEmail _fluentEmail;
+
+    public ErrorProcessor(IFluentEmail fluentEmail)
+    {
+        _fluentEmail = fluentEmail;
+    }
+    private ErrorProcessor()
+    {
+
+    }
+
     private ProcessorHandler RegistratedProcessors { get; set; } = new ProcessorHandler();
 
     /// <summary>
@@ -17,15 +29,18 @@ public class ErrorProcessor : IErrorProcesser
     /// <param name="userName">Name of the sender in slack</param>
     /// <param name="emoji">nullable, if not provided the Slack.Webhooks.Emoji.AlarmClock will be used</param>
     /// <returns><see cref="ErrorProcessor">ErrorProcessor</see></returns>
-    public ErrorProcessor RegisterSlack(string hookUrl, string channel, string userName, string emoji = "")
+    public ErrorProcessor RegisterSlack(string applicationName, string version, string hookUrl, string channel, string userName, string emoji = "")
     {
         RegistratedProcessors = RegistratedProcessors.InjectSlack(hookUrl, channel, userName, emoji);
         return this;
     }
 
-    public ErrorProcessor RegisterEmail(List<(string emailAddress, string? name)>? copys = null)
+    public ErrorProcessor RegisterEmail(string applicationName, string version, string toEmail, string toName = "", List<(string emailAddress, string? name)> copies = null)
     {
-        RegistratedProcessors = RegistratedProcessors.InjectEmail(copys);
+        RegistratedProcessors.SetApplicationName(applicationName);
+        RegistratedProcessors.SetVersion(version);
+
+        RegistratedProcessors.InjectEmail(toEmail, toName, copies);
         return this;
     }
 
@@ -103,14 +118,29 @@ public class ErrorProcessor : IErrorProcesser
     /// <param name="level">set level on when to log using email</param>
     private async Task LogMessageToEmail(LogLevel logLevel, string message)
     {
-        if (RegistratedProcessors.Email is null)
+        try
         {
-            throw new ArgumentNullException(nameof(Processors.EmailProcessor));
+            if (RegistratedProcessors.Email is null)
+            {
+                throw new ArgumentNullException("Email is not injected");
+            }
+            string subject = $"{logLevel.ToString().ToUpper()} | {RegistratedProcessors.ApplicaionName}, {RegistratedProcessors.Version}";
+            string body = $"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}";
+
+            foreach (var email in RegistratedProcessors.Email.Copies)
+            {
+                _fluentEmail.To(email.EmailAddress, email.Name);
+            }
+
+            _fluentEmail.Subject(subject);
+            _fluentEmail.Body(body);
+
+            await _fluentEmail.SendAsync();
         }
-
-        string body = $"{logLevel.ToString().ToUpper()} | {DateTime.UtcNow} | {message}";
-
-        await RegistratedProcessors.Email.Email.Body(body).SendAsync();
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     private async Task LogMessage(LogLevel logLevel, string message)

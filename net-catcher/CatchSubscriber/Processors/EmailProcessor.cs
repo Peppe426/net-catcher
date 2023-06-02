@@ -1,16 +1,14 @@
-﻿using FluentEmail.Core;
-
-namespace CatchSubscriber.Processors;
+﻿namespace CatchSubscriber.Processors;
 
 public class EmailProcessor
 {
-    public Email Email { get; set; } = new Email();
+    //public Email Email { get; set; } = new Email(); //TODO delete
+    public List<(string EmailAddress, string? Name)> Copies { get; private set; } = new();
 
-    internal void AddCopys(List<(string emailAddress, string? name)> copys)
+    internal EmailProcessor AddCopy((string emailAddress, string? name) copy)
     {
-        copys.ForEach(copy =>
-        {
-            Email.CC(copy.emailAddress, copy.name != null ? copy.name : "");
-        });
+        Copies.Add(copy);
+
+        return this;
     }
 }

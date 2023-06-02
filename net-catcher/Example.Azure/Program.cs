@@ -4,6 +4,7 @@ using CatchSubscriber.Interfaces;
 using CatchSubscriber.Models;
 using Example.Api;
 using Example.Api.Interfaces;
+using FluentEmail.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,12 +23,20 @@ builder.Services.AddSwaggerGen();
 //You must first enable the Webhooks integration for your Slack Account to get the Token. You can enable it here: https://slack.com/services/new/incoming-webhook
 //builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>(
 //    serviceProvider => new ErrorProcessor()
-//    .RegisterSlack("https://hooks.slack.com/services/[YOUR-TOKEN]", "Testing", userName: "ThisApplication")
+//    .RegisterSlack("MyApplicaion", "1.0","https://hooks.slack.com/services/[YOUR-TOKEN]", "Testing", userName: "ThisApplication")
 // );
 
+//------------ EXAMPLE ADD EMAIL using GMAIL SMTP and with CC support------------
+builder.Services.AddEmail("smtp.gmail.com", 465, "peter.developer@mymail.se", "MYPASSWORD", "peter.developer@mymail.se", "Peter");
+
+builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>(
+    serviceProvider => new ErrorProcessor(fluentEmail: builder.Services.BuildServiceProvider().GetService<IFluentEmail>())
+    .RegisterEmail("MyApplicaion", "1.0", "peter.developer@emailhost.se", "ToAlice")
+ );
+
 //------------ EXAMPLE ADD EXAMPLEPROVIDER/Service ------------
-builder.Services.AddOpenTelemetryForConsole("ThisApplication", "1.0");
-builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>();
+//builder.Services.AddOpenTelemetryForConsole("ThisApplication", "1.0");
+//builder.Services.AddScoped<IErrorProcesser, ErrorProcessor>();
 builder.Services.AddScoped<IExampleProvider, ExampleProvider>();
 
 var app = builder.Build();
