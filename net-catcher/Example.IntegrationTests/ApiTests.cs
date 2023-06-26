@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace Example.IntegrationTests;
 
-public class EmailProcessor : IntegrationTest
+public class ApiTests : IntegrationTest
 {
     [SetUp]
     public void Setup()
@@ -13,11 +13,11 @@ public class EmailProcessor : IntegrationTest
     [Test]
     public async Task ShouldProcessErrorUsingEmail()
     {
-        //TODO FIX THIS 
+        //ATM can nott test this due to lack of SMTP provider. Need to setup provider
         //Given
         GetRequiredService<IErrorProcesser>(out var service);
 
-        //await service.ProcessError("This is my message", LogLevel.Warning, CatchSubscriber.Models.CatchAction.Email);
+        //await service.ProcessError("This is my message", LogLevel.Warning, CatchAction.Email);
 
         //When
         //Func<Task> outcome = async () => await service.ProcessError("This is my message", LogLevel.Warning, CatchSubscriber.Models.CatchAction.Email);
